@@ -32,7 +32,7 @@ JWT_EXPIRE=7d
 PORT=6800
 
 # Client URL (for CORS)
-CLIENT_URL=http://localhost:5173
+CLIENT_URL=http://localhost:8080
 
 # Vite API URL (for frontend)
 VITE_API_URL=http://localhost:6800/api
@@ -78,7 +78,7 @@ npm run server
 ### 5. Access the Application
 
 Open your browser to:
-- Frontend: [http://localhost:5173](http://localhost:5173)
+- Frontend: [http://localhost:8080](http://localhost:8080)
 - Backend API: [http://localhost:6800](http://localhost:6800)
 
 ## Features
