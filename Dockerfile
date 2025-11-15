@@ -12,6 +12,10 @@ RUN npm ci --only=production=false
 # Copy all source files
 COPY . .
 
+# Set build-time environment variable for Vite
+ARG VITE_API_URL=http://localhost:5001/api
+ENV VITE_API_URL=$VITE_API_URL
+
 # Build the Vite React application
 RUN npm run build
 

@@ -9,7 +9,10 @@
       "Bash(docker-compose up:*)",
       "Bash(curl:*)",
       "Bash(npm install:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(docker logs:*)",
+      "Bash(cat:*)",
+      "Bash(docker-compose build:*)"
     ],
     "deny": [],
     "ask": []
