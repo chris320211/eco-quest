@@ -7,7 +7,9 @@
       "Bash(docker system prune:*)",
       "Bash(docker build:*)",
       "Bash(docker-compose up:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)"
     ],
     "deny": [],
     "ask": []
