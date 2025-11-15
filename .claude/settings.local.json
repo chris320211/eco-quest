@@ -13,7 +13,12 @@
       "Bash(docker logs:*)",
       "Bash(cat:*)",
       "Bash(docker-compose build:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(lsof:*)",
+      "Bash(npm run server:*)",
+      "Bash(timeout 2 curl:*)",
+      "Bash(pkill:*)",
+      "Bash(docker-compose restart:*)"
     ],
     "deny": [],
     "ask": []

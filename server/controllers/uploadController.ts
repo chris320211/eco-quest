@@ -57,21 +57,33 @@ async function processFileWithHaiku(
   fileType: string,
   userId: string
 ): Promise<void> {
+  console.log(`[Upload ${uploadId}] Starting Haiku processing...`);
+  console.log(`[Upload ${uploadId}] File: ${filePath}, Type: ${fileType}`);
+
   try {
     // Parse the file to extract text
+    console.log(`[Upload ${uploadId}] Step 1: Parsing file...`);
     const documentText = await parseFile(filePath, fileType);
+    console.log(`[Upload ${uploadId}] Extracted ${documentText.length} characters of text`);
 
     // Extract sustainability data using Claude Haiku
+    console.log(`[Upload ${uploadId}] Step 2: Calling Claude Haiku API...`);
     const extractionResult = await extractSustainabilityData(documentText);
+    console.log(`[Upload ${uploadId}] Haiku extracted:`);
+    console.log(`  - Monthly records: ${extractionResult.monthlyData.length}`);
+    console.log(`  - Annual records: ${extractionResult.annualData.length}`);
 
     // Generate analysis report
+    console.log(`[Upload ${uploadId}] Step 3: Generating analysis report...`);
     const analysisReport = await generateAnalysisReport(
       extractionResult.monthlyData,
       extractionResult.annualData
     );
+    console.log(`[Upload ${uploadId}] Report length: ${analysisReport.length} characters`);
 
     // Save extracted data to database
-    await ExtractedData.create({
+    console.log(`[Upload ${uploadId}] Step 4: Saving to database...`);
+    const savedData = await ExtractedData.create({
       uploadId: new mongoose.Types.ObjectId(uploadId),
       userId: new mongoose.Types.ObjectId(userId),
       monthlyData: extractionResult.monthlyData,
@@ -79,6 +91,7 @@ async function processFileWithHaiku(
       analysisReport,
       rawResponse: extractionResult.rawResponse,
     });
+    console.log(`[Upload ${uploadId}] Saved ExtractedData with ID: ${savedData._id}`);
 
     // Update upload status to processed
     await Upload.findByIdAndUpdate(uploadId, {
@@ -86,9 +99,10 @@ async function processFileWithHaiku(
       processedAt: new Date(),
     });
 
-    console.log(`Successfully processed upload ${uploadId}`);
+    console.log(`[Upload ${uploadId}] ✅ Successfully processed!`);
   } catch (error: any) {
-    console.error(`Error processing upload ${uploadId}:`, error);
+    console.error(`[Upload ${uploadId}] ❌ Error:`, error.message);
+    console.error(`[Upload ${uploadId}] Stack:`, error.stack);
 
     // Update upload status to error
     await Upload.findByIdAndUpdate(uploadId, {
