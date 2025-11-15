@@ -29,13 +29,13 @@ JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
 JWT_EXPIRE=7d
 
 # Server Port
-PORT=5000
+PORT=6800
 
 # Client URL (for CORS)
 CLIENT_URL=http://localhost:5173
 
 # Vite API URL (for frontend)
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL=http://localhost:6800/api
 
 # Anthropic API Key (for Claude Haiku analysis)
 ANTHROPIC_API_KEY=your_anthropic_api_key_here
@@ -79,7 +79,7 @@ npm run server
 
 Open your browser to:
 - Frontend: [http://localhost:5173](http://localhost:5173)
-- Backend API: [http://localhost:5000](http://localhost:5000)
+- Backend API: [http://localhost:6800](http://localhost:6800)
 
 ## Features
 

@@ -14,7 +14,7 @@ dotenv.config();
 connectDB();
 
 const app: Express = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 6800;
 
 // Middleware
 app.use(cors({
