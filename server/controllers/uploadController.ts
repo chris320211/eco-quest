@@ -1,8 +1,12 @@
 import { Request, Response } from 'express';
 import Upload from '../models/Upload.js';
+import ExtractedData from '../models/ExtractedData.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { parseFile } from '../utils/fileParser.js';
+import { extractSustainabilityData, generateAnalysisReport } from '../services/haikuAnalysisService.js';
+import mongoose from 'mongoose';
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -44,6 +48,56 @@ export const upload = multer({
   },
 });
 
+/**
+ * Process uploaded file with Claude Haiku for data extraction
+ */
+async function processFileWithHaiku(
+  uploadId: string,
+  filePath: string,
+  fileType: string,
+  userId: string
+): Promise<void> {
+  try {
+    // Parse the file to extract text
+    const documentText = await parseFile(filePath, fileType);
+
+    // Extract sustainability data using Claude Haiku
+    const extractionResult = await extractSustainabilityData(documentText);
+
+    // Generate analysis report
+    const analysisReport = await generateAnalysisReport(
+      extractionResult.monthlyData,
+      extractionResult.annualData
+    );
+
+    // Save extracted data to database
+    await ExtractedData.create({
+      uploadId: new mongoose.Types.ObjectId(uploadId),
+      userId: new mongoose.Types.ObjectId(userId),
+      monthlyData: extractionResult.monthlyData,
+      annualData: extractionResult.annualData,
+      analysisReport,
+      rawResponse: extractionResult.rawResponse,
+    });
+
+    // Update upload status to processed
+    await Upload.findByIdAndUpdate(uploadId, {
+      status: 'processed',
+      processedAt: new Date(),
+    });
+
+    console.log(`Successfully processed upload ${uploadId}`);
+  } catch (error: any) {
+    console.error(`Error processing upload ${uploadId}:`, error);
+
+    // Update upload status to error
+    await Upload.findByIdAndUpdate(uploadId, {
+      status: 'error',
+      errorMessage: error.message || 'Failed to process file',
+    });
+  }
+}
+
 // @desc    Upload file(s)
 // @route   POST /api/uploads
 // @access  Private
@@ -68,17 +122,8 @@ export const uploadFiles = async (req: Request, res: Response): Promise<void> =>
           status: 'processing',
         });
 
-        // Simulate processing (in production, this would be actual processing)
-        setTimeout(async () => {
-          try {
-            await Upload.findByIdAndUpdate(uploadDoc._id, {
-              status: 'processed',
-              processedAt: new Date(),
-            });
-          } catch (error) {
-            console.error('Error updating upload status:', error);
-          }
-        }, 2000);
+        // Process file with Haiku in the background
+        processFileWithHaiku(uploadDoc._id.toString(), file.path, file.mimetype, userId);
 
         return {
           id: uploadDoc._id,

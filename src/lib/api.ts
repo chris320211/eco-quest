@@ -271,4 +271,77 @@ export const api = {
 
     return response.json();
   },
+
+  // Get extracted data for a specific upload
+  getExtraction: async (uploadId: string) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No token found');
+    }
+
+    const response = await fetch(`${API_URL}/extractions/${uploadId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        const error = await response.json();
+        return { success: false, data: null, message: error.message };
+      }
+      throw new Error('Failed to fetch extraction data');
+    }
+
+    return response.json();
+  },
+
+  // Get all extractions for user
+  getExtractions: async (limit = 10) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No token found');
+    }
+
+    const response = await fetch(`${API_URL}/extractions?limit=${limit}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch extractions');
+    }
+
+    return response.json();
+  },
+
+  // Export extraction data as CSV
+  exportExtraction: async (uploadId: string, type: 'monthly' | 'annual') => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No token found');
+    }
+
+    const response = await fetch(`${API_URL}/extractions/${uploadId}/export/${type}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to export data');
+    }
+
+    // Get the blob and download it
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sustainability-${type}-${uploadId}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  },
 };
