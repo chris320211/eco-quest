@@ -1,16 +1,42 @@
-# Sustainify - Make Your Business Sustainable
+# Sustainify (Eco-Quest) - Make Your Business Sustainable
 
-Sustainify is a full-stack web application that helps small businesses reduce their carbon footprint and become more sustainable. Track emissions, save costs, and make environmentally conscious decisions with simple, easy-to-use tools.
+Sustainify is a full-stack MERN web application that helps small businesses reduce their carbon footprint and become more sustainable. Track emissions, save costs, and make environmentally conscious decisions with simple, easy-to-use tools.
 
-## Features
+## What's Included
 
-- User authentication (Sign in/Sign up)
-- Carbon footprint tracking
-- Sustainability insights and recommendations
-- Cost-saving analysis
-- User-friendly interface built with React and shadcn/ui
-- Responsive design for desktop and mobile
-- Secure MongoDB Atlas database integration
+This is a **production-ready full-stack application** with:
+
+- **Complete User Authentication System**
+  - Email/password registration and login
+  - JWT-based authentication
+  - Password hashing with bcrypt
+  - Protected routes and middleware
+  - User session management
+
+- **Frontend Features**
+  - Beautiful, responsive UI with React + TypeScript
+  - Modern UI components (shadcn/ui)
+  - Sign In / Sign Up pages with form validation
+  - Toast notifications for user feedback
+  - Loading states and error handling
+
+- **Backend API**
+  - RESTful API with Express.js
+  - MongoDB Atlas integration for data persistence
+  - Secure authentication endpoints
+  - Health check endpoints
+
+- **DevOps Ready**
+  - Full Docker support (frontend + backend)
+  - Docker Compose for one-command deployment
+  - Production-ready nginx configuration
+  - Environment-based configuration
+
+- **Additional Features**
+  - Carbon footprint tracking interface
+  - Sustainability insights
+  - Cost-saving analysis tools
+  - Responsive design for all devices
 
 ## Tech Stack
 
@@ -30,13 +56,95 @@ Sustainify is a full-stack web application that helps small businesses reduce th
 - bcryptjs for password hashing
 - TypeScript
 
+## Table of Contents
+
+- [Quick Start for Developers](#quick-start-for-developers)
+- [MongoDB Atlas Setup](#mongodb-atlas-setup)
+- [Running with Docker](#running-with-docker)
+- [Local Development](#local-development-setup)
+- [API Endpoints](#api-endpoints)
+- [Project Structure](#project-structure)
+- [Troubleshooting](#troubleshooting)
+
 ## Prerequisites
 
 Before you begin, ensure you have:
 
 - **Docker & Docker Compose** (recommended for quick setup)
 - **Node.js** 20.x or higher and npm (for local development)
-- **MongoDB Atlas account** (free tier available)
+- **MongoDB Atlas account** (free tier available - setup instructions below)
+- **Git** for cloning the repository
+
+## Quick Start for Developers
+
+Follow these steps to get the application running on your machine:
+
+### Option 1: Docker (Easiest - Recommended)
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/chris320211/eco-quest.git
+cd eco-quest
+
+# 2. Set up environment variables
+cp .env.example .env
+
+# 3. Edit .env and add your MongoDB Atlas connection string
+# See "MongoDB Atlas Setup" section below for detailed instructions
+nano .env  # or use your preferred editor
+
+# 4. Start the entire application (frontend + backend)
+docker-compose up -d
+
+# 5. Access the application
+# Frontend: http://localhost:9900
+# Backend API: http://localhost:5000
+```
+
+### Option 2: Local Development
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/chris320211/eco-quest.git
+cd eco-quest
+
+# 2. Install dependencies
+npm install
+
+# 3. Set up environment variables
+cp .env.example .env
+
+# 4. Edit .env and add your MongoDB Atlas connection string
+# See "MongoDB Atlas Setup" section below
+nano .env  # or use your preferred editor
+
+# 5. Run both frontend and backend
+npm run dev:all
+
+# OR run them separately in different terminals:
+# Terminal 1:
+npm run dev        # Frontend at http://localhost:5173 or http://localhost:8080
+
+# Terminal 2:
+npm run server     # Backend at http://localhost:5000
+```
+
+### Testing the Application
+
+Once running, you can:
+
+1. **Visit the frontend**: http://localhost:9900 (Docker) or http://localhost:5173 (local)
+2. **Click "Sign Up"** to create a new account
+3. **Sign in** with your credentials
+4. **Test the API directly**:
+   ```bash
+   # Check backend health
+   curl http://localhost:5000/api/health
+   ```
+
+### What You'll Need
+
+To fully run this application, you need a **MongoDB Atlas connection string**. Follow the setup guide below to get one (takes ~5 minutes, completely free).
 
 ## MongoDB Atlas Setup
 
@@ -98,60 +206,63 @@ Before you begin, ensure you have:
 
 3. **Important**: Never commit the `.env` file to version control!
 
-## Quick Start with Docker
+## Running with Docker
 
-The easiest way to run Sustainify is using Docker:
+Docker provides the easiest way to run both frontend and backend with a single command.
 
-### 1. Clone the repository
+### Prerequisites for Docker
 
-```bash
-git clone https://github.com/your-username/eco-quest.git
-cd eco-quest
-```
+- Docker Desktop installed ([Download](https://www.docker.com/products/docker-desktop))
+- MongoDB Atlas connection string configured in `.env` file
 
-### 2. Set up MongoDB Atlas (see above) and configure `.env` file
+### Docker Commands
 
-### 3. Build and run with Docker Compose
-
+**Start the application:**
 ```bash
 docker-compose up -d
 ```
 
-The application will be available at:
-- **Frontend**: [http://localhost:9900](http://localhost:9900)
-- **Backend API**: [http://localhost:5000](http://localhost:5000)
+This will:
+- Build the frontend container (React app with nginx)
+- Build the backend container (Node.js Express server)
+- Start both containers
+- Set up networking between them
 
-### 3. Stop the application
+**View logs:**
+```bash
+# All services
+docker-compose logs -f
 
+# Just backend
+docker-compose logs -f backend
+
+# Just frontend
+docker-compose logs -f frontend
+```
+
+**Stop the application:**
 ```bash
 docker-compose down
 ```
 
-## Docker Commands
-
-### Build the Docker image manually
-
-```bash
-docker build -t eco-quest:latest .
-```
-
-### Run the container manually
-
-```bash
-docker run -d -p 9900:80 --name eco-quest-app eco-quest:latest
-```
-
-### View logs
-
-```bash
-docker-compose logs -f
-```
-
-### Rebuild after code changes
-
+**Rebuild after code changes:**
 ```bash
 docker-compose up -d --build
 ```
+
+**Check service status:**
+```bash
+docker-compose ps
+```
+
+### Docker Architecture
+
+The `docker-compose.yml` sets up:
+- **backend** service: Runs on port 5000
+- **frontend** service: Runs on port 9900
+- Shared network for service communication
+- Health checks for both services
+- Auto-restart on failure
 
 ## Local Development Setup
 
@@ -305,31 +416,205 @@ curl http://localhost:9900/health
 
 ## Troubleshooting
 
-### Docker build fails
+### MongoDB Connection Issues
 
-- Ensure Docker is running and up to date
-- Try clearing Docker cache: `docker builder prune`
-- Check available disk space
+**Error: "MONGODB_URI is not defined"**
+```bash
+# Solution: Make sure you have a .env file with your MongoDB connection string
+cp .env.example .env
+# Edit .env and add your MongoDB Atlas connection string
+```
 
-### Port already in use
+**Error: "MongoServerError: bad auth"**
+- Check that your MongoDB username and password are correct
+- Make sure you replaced `<password>` in the connection string with your actual password
+- Verify the user exists in MongoDB Atlas Database Access
 
-If port 9900 is already in use, either:
-- Stop the service using that port
-- Change the port in `docker-compose.yml`
+**Error: "MongooseServerSelectionError: connect ECONNREFUSED"**
+- Verify your IP address is whitelisted in MongoDB Atlas Network Access
+- Try adding 0.0.0.0/0 (allow from anywhere) for testing
+- Check your internet connection
 
-### Application not loading
+### Docker Issues
 
-- Check if the container is running: `docker ps`
-- View container logs: `docker-compose logs`
-- Verify the health check: `docker inspect eco-quest-app`
+**Docker build fails**
+```bash
+# Clear Docker cache and rebuild
+docker system prune -f
+docker-compose up -d --build
+```
+
+**Port already in use**
+```bash
+# Check what's using the port
+lsof -i :9900  # or :5000
+
+# Kill the process or change ports in docker-compose.yml
+# Edit the ports section:
+ports:
+  - "NEW_PORT:80"  # Change NEW_PORT to an available port
+```
+
+**Container keeps restarting**
+```bash
+# Check container logs for errors
+docker-compose logs backend
+docker-compose logs frontend
+
+# Common cause: Missing or invalid MONGODB_URI in .env
+```
+
+### Local Development Issues
+
+**"Cannot find module" errors**
+```bash
+# Reinstall dependencies
+rm -rf node_modules package-lock.json
+npm install
+```
+
+**Backend not connecting to frontend**
+- Check that `VITE_API_URL` in `.env` points to `http://localhost:5000/api`
+- Verify backend is running: `curl http://localhost:5000/api/health`
+- Check CORS settings in `server/index.ts`
+
+**Frontend build fails**
+```bash
+# Clear cache and rebuild
+rm -rf dist node_modules/.vite
+npm install
+npm run build
+```
+
+### Authentication Issues
+
+**"Not authorized" errors**
+- JWT token may have expired (default: 7 days)
+- Clear localStorage and sign in again
+- Check JWT_SECRET matches in `.env` on both client and server
+
+**Sign up/Sign in not working**
+- Check browser console for errors (F12)
+- Verify backend is running and accessible
+- Test API directly:
+  ```bash
+  curl -X POST http://localhost:5000/api/auth/register \
+    -H "Content-Type: application/json" \
+    -d '{"email":"test@example.com","password":"password123"}'
+  ```
+
+### General Debugging
+
+**Check if services are running**
+```bash
+# Docker
+docker-compose ps
+
+# Local (check processes)
+lsof -i :5000  # Backend
+lsof -i :5173  # Frontend (dev server)
+lsof -i :8080  # Frontend (alternate port)
+```
+
+**View all logs**
+```bash
+# Docker
+docker-compose logs -f
+
+# Local - check terminal outputs where you ran npm commands
+```
+
+**Reset everything**
+```bash
+# Docker - complete reset
+docker-compose down -v
+docker system prune -a -f
+rm .env
+cp .env.example .env
+# Edit .env with your MongoDB URI
+docker-compose up -d --build
+
+# Local - complete reset
+rm -rf node_modules dist .env
+npm install
+cp .env.example .env
+# Edit .env with your MongoDB URI
+npm run dev:all
+```
+
+### Still Having Issues?
+
+1. Check the [GitHub Issues](https://github.com/chris320211/eco-quest/issues)
+2. Make sure all prerequisites are installed correctly
+3. Verify your MongoDB Atlas cluster is running
+4. Try the health check endpoints:
+   - Backend: http://localhost:5000/api/health
+   - Frontend: http://localhost:9900/health (Docker) or check if page loads
+
+## For Developers
+
+### Why This Project is Great for Learning
+
+This project demonstrates:
+
+✅ **Full-stack MERN architecture** (MongoDB, Express, React, Node.js)
+✅ **Modern TypeScript** throughout frontend and backend
+✅ **Production-ready authentication** with JWT and bcrypt
+✅ **Docker containerization** for easy deployment
+✅ **RESTful API design** with proper error handling
+✅ **React best practices** with hooks and modern patterns
+✅ **Shadcn/UI component library** integration
+✅ **Environment-based configuration** for dev/prod
+✅ **Database modeling** with Mongoose
+✅ **Security best practices** (password hashing, JWT, CORS)
+
+### Development Workflow
+
+1. Make changes to the code
+2. If running with Docker: `docker-compose up -d --build`
+3. If running locally: Changes auto-reload with hot module replacement
+4. Test your changes
+5. Commit and push
+
+### Useful Development Commands
+
+```bash
+# Frontend only
+npm run dev
+
+# Backend only
+npm run server
+
+# Both simultaneously
+npm run dev:all
+
+# Build for production
+npm run build
+
+# Check for linting issues
+npm run lint
+
+# Preview production build
+npm run preview
+```
 
 ## Contributing
+
+We welcome contributions! Here's how:
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/your-feature-name`
 3. Commit your changes: `git commit -m 'Add some feature'`
 4. Push to the branch: `git push origin feature/your-feature-name`
 5. Open a Pull Request
+
+### Contribution Guidelines
+
+- Follow the existing code style
+- Write meaningful commit messages
+- Test your changes before submitting
+- Update documentation if needed
+- Keep PRs focused on a single feature/fix
 
 ## License
 
