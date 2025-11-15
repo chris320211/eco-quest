@@ -1,4 +1,4 @@
-# Sustainify (Eco-Quest) - Make Your Business Sustainable
+# Sustainify - Make Your Business Sustainable
 
 Sustainify is a full-stack MERN web application that helps small businesses reduce their carbon footprint and become more sustainable. Track emissions, save costs, and make environmentally conscious decisions with simple, easy-to-use tools.
 
