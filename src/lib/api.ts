@@ -112,6 +112,43 @@ export const api = {
     return userStr ? JSON.parse(userStr) : null;
   },
 
+  // Update onboarding data
+  updateOnboarding: async (data: {
+    country: string;
+    state: string;
+    industry: string;
+    companySize: string;
+    reportingPreferences: string[];
+  }) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No token found');
+    }
+
+    const response = await fetch(`${API_URL}/auth/onboarding`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to save onboarding data');
+    }
+
+    const result = await response.json();
+
+    // Update stored user data
+    if (result.user) {
+      localStorage.setItem('user', JSON.stringify(result.user));
+    }
+
+    return result;
+  },
+
   // Upload files
   uploadFiles: async (files: File[]) => {
     const token = localStorage.getItem('token');

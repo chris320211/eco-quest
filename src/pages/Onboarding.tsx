@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Leaf, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { api } from "@/lib/api";
 
 const Onboarding = () => {
   const [country, setCountry] = useState("");
@@ -29,16 +30,29 @@ const Onboarding = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // TODO: Save onboarding data to backend
-    // For now, just navigate to dashboard
-    setTimeout(() => {
+    try {
+      await api.updateOnboarding({
+        country,
+        state,
+        industry,
+        companySize,
+        reportingPreferences,
+      });
+
       toast({
         title: "Profile setup complete!",
         description: "Your analysis has been configured based on your information.",
       });
       navigate("/dashboard");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save onboarding data. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (

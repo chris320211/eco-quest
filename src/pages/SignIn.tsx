@@ -28,8 +28,8 @@ const SignIn = () => {
         description: `Welcome back, ${result.user.name || result.user.email}!`,
       });
 
-      // Redirect to onboarding or dashboard
-      navigate("/onboarding");
+      // Redirect to dashboard (user already completed onboarding during signup)
+      navigate("/dashboard");
     } catch (error: any) {
       toast({
         title: "Error",

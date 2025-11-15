@@ -1,10 +1,21 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+export interface IOnboardingData {
+  country?: string;
+  state?: string;
+  industry?: string;
+  companySize?: string;
+  reportingPreferences?: string[];
+  completedAt?: Date;
+}
+
 export interface IUser extends Document {
   email: string;
   password: string;
   name?: string;
+  onboarding?: IOnboardingData;
+  hasCompletedOnboarding: boolean;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -29,6 +40,18 @@ const userSchema = new Schema<IUser>(
     name: {
       type: String,
       trim: true,
+    },
+    onboarding: {
+      country: String,
+      state: String,
+      industry: String,
+      companySize: String,
+      reportingPreferences: [String],
+      completedAt: Date,
+    },
+    hasCompletedOnboarding: {
+      type: Boolean,
+      default: false,
     },
   },
   {

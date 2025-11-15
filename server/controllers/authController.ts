@@ -91,6 +91,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         id: user._id,
         email: user.email,
         name: user.name,
+        hasCompletedOnboarding: user.hasCompletedOnboarding,
       },
     });
   } catch (error: any) {
@@ -120,6 +121,8 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
         id: user._id,
         email: user.email,
         name: user.name,
+        hasCompletedOnboarding: user.hasCompletedOnboarding,
+        onboarding: user.onboarding,
         createdAt: user.createdAt,
       },
     });
@@ -127,6 +130,54 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
     console.error('Get me error:', error);
     res.status(500).json({
       message: 'Error fetching user data',
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Update user onboarding data
+// @route   POST /api/auth/onboarding
+// @access  Private
+export const updateOnboarding = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = (req as any).user.id;
+    const { country, state, industry, companySize, reportingPreferences } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {
+        onboarding: {
+          country,
+          state,
+          industry,
+          companySize,
+          reportingPreferences,
+          completedAt: new Date(),
+        },
+        hasCompletedOnboarding: true,
+      },
+      { new: true }
+    );
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        hasCompletedOnboarding: user.hasCompletedOnboarding,
+        onboarding: user.onboarding,
+      },
+    });
+  } catch (error: any) {
+    console.error('Update onboarding error:', error);
+    res.status(500).json({
+      message: 'Error updating onboarding data',
       error: error.message,
     });
   }
