@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Upload from "./pages/Upload";
 import Readiness from "./pages/Readiness";
 import Analysis from "./pages/Analysis";
+import FileAnalysis from "./pages/FileAnalysis";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/upload" element={<Upload />} />
           <Route path="/readiness" element={<Readiness />} />
           <Route path="/analysis" element={<Analysis />} />
+          <Route path="/analysis/:uploadId" element={<FileAnalysis />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
