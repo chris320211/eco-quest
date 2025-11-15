@@ -1,0 +1,23 @@
+services:
+  eco-quest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eco-quest-app
+    ports:
+      - "9900:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    networks:
+      - eco-quest-network
+
+networks:
+  eco-quest-network:
+    driver: bridge
