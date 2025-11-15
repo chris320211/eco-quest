@@ -371,7 +371,7 @@ const Upload = () => {
             {files.length > 0 && files.every((f) => f.status === "processed") && (
               <Button
                 className="w-full"
-                onClick={() => navigate("/analytics")}
+                onClick={() => navigate("/analysis")}
               >
                 View Analytics Dashboard
               </Button>

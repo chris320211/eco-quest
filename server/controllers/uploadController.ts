@@ -136,8 +136,10 @@ export const uploadFiles = async (req: Request, res: Response): Promise<void> =>
           status: 'processing',
         });
 
-        // Process file with Haiku in the background
-        processFileWithHaiku(uploadDoc._id.toString(), file.path, file.mimetype, userId);
+        // Process file with Haiku in the background (no await - runs async)
+        processFileWithHaiku(uploadDoc._id.toString(), file.path, file.mimetype, userId).catch(err => {
+          console.error(`[Upload ${uploadDoc._id}] Background processing failed:`, err);
+        });
 
         return {
           id: uploadDoc._id,

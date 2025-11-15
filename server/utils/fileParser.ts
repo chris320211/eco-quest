@@ -1,18 +1,30 @@
 import fs from 'fs';
 import path from 'path';
-import { createRequire } from 'module';
-
-const require = createRequire(import.meta.url);
-const pdfParse = require('pdf-parse');
 
 /**
- * Parse a PDF file and extract text content
+ * Parse a PDF file and extract text content using pdfjs-dist
  */
 export async function parsePDF(filePath: string): Promise<string> {
   try {
-    const dataBuffer = fs.readFileSync(filePath);
-    const data = await pdfParse(dataBuffer);
-    return data.text;
+    const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.js');
+    const dataBuffer = new Uint8Array(fs.readFileSync(filePath));
+
+    const loadingTask = pdfjsLib.getDocument({ data: dataBuffer });
+    const pdfDocument = await loadingTask.promise;
+
+    let fullText = '';
+
+    // Extract text from each page
+    for (let pageNum = 1; pageNum <= pdfDocument.numPages; pageNum++) {
+      const page = await pdfDocument.getPage(pageNum);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items
+        .map((item: any) => item.str)
+        .join(' ');
+      fullText += pageText + '\n';
+    }
+
+    return fullText.trim();
   } catch (error) {
     console.error('Error parsing PDF:', error);
     throw new Error('Failed to parse PDF file');

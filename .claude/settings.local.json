@@ -18,7 +18,9 @@
       "Bash(npm run server:*)",
       "Bash(timeout 2 curl:*)",
       "Bash(pkill:*)",
-      "Bash(docker-compose restart:*)"
+      "Bash(docker-compose restart:*)",
+      "Bash(docker ps:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": [],
     "ask": []

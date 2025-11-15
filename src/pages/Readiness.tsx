@@ -1,40 +1,103 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DataCoverageGauge } from "@/components/dashboard/DataCoverageGauge";
-import { ArrowLeft, Upload, Play, AlertCircle } from "lucide-react";
+import { ArrowLeft, Upload, Play, AlertCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { api } from "@/lib/api";
+
+interface MonthlyData {
+  year: number;
+  month: number;
+  month_label: string;
+  co2_kg: number;
+  plastic_lbs: number;
+  water_gal: number;
+  energy_kwh: number;
+}
+
+interface AnnualData {
+  year: number;
+  co2_kg: number;
+  plastic_lbs: number;
+  water_gal: number;
+  energy_kwh: number;
+}
+
+interface ExtractionData {
+  uploadId: {
+    _id: string;
+    fileName: string;
+    fileType: string;
+  };
+  monthlyData: MonthlyData[];
+  annualData: AnnualData[];
+  extractedAt: string;
+}
 
 const Readiness = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedPeriod] = useState("FY2024");
+  const [isLoading, setIsLoading] = useState(true);
+  const [extractedData, setExtractedData] = useState<MonthlyData[]>([]);
+  const [annualData, setAnnualData] = useState<AnnualData[]>([]);
 
-  // Mock data - replace with actual data from API
-  const coverage = 58;
-  const filledFields = 7;
-  const totalFields = 12;
+  useEffect(() => {
+    fetchExtractedData();
+  }, []);
 
-  const missingFields = [
-    { field: "Vehicle fuel usage 2024", description: "Total fuel consumption for company vehicles", category: "Fuel" },
-    { field: "Waste disposal records", description: "Waste management and disposal data", category: "Waste" },
-    { field: "Refrigerant specifications", description: "Type and quantity of refrigerants used", category: "Refrigerants" },
-    { field: "Natural gas consumption Q4", description: "Fourth quarter natural gas usage", category: "Energy" },
-    { field: "Business travel details", description: "Air travel and accommodation emissions", category: "Travel" },
-  ];
+  const fetchExtractedData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.getExtractions(100); // Get more extractions
 
-  const extractedData = [
-    { field: "Electricity consumption 2024", value: "125,000", unit: "kWh", source: "energy-bill-2024.pdf (p. 2)" },
-    { field: "Natural gas Q1-Q3", value: "45,000", unit: "therms", source: "energy-bill-2024.pdf (p. 3)" },
-    { field: "Company vehicle count", value: "12", unit: "vehicles", source: "operations-slides.pptx (slide 5)" },
-    { field: "Office square footage", value: "5,000", unit: "sq ft", source: "operations-slides.pptx (slide 2)" },
-    { field: "Employee count", value: "45", unit: "employees", source: "operations-slides.pptx (slide 1)" },
-    { field: "Diesel fuel Q1-Q3", value: "8,500", unit: "gallons", source: "fuel-receipts.jpg" },
-    { field: "Paper consumption", value: "2,500", unit: "reams", source: "operations-slides.pptx (slide 8)" },
-  ];
+      if (response.success && response.extractions && response.extractions.length > 0) {
+        // Fetch detailed data for each extraction
+        const allMonthlyData: MonthlyData[] = [];
+        const allAnnualData: AnnualData[] = [];
+
+        for (const extraction of response.extractions) {
+          try {
+            const detailResponse = await api.getExtraction(extraction.uploadId._id || extraction.uploadId);
+            if (detailResponse.success && detailResponse.data) {
+              allMonthlyData.push(...detailResponse.data.monthlyData);
+              allAnnualData.push(...detailResponse.data.annualData);
+            }
+          } catch (err) {
+            console.error('Error fetching extraction details:', err);
+          }
+        }
+
+        setExtractedData(allMonthlyData);
+        setAnnualData(allAnnualData);
+      }
+    } catch (error: any) {
+      console.error('Error fetching extracted data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load extracted data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Calculate coverage based on actual data
+  const totalFields = 4; // CO2, Plastic, Water, Energy
+  const filledFields = extractedData.length > 0 ? totalFields : 0;
+  const coverage = extractedData.length > 0 ? Math.round((filledFields / totalFields) * 100) : 0;
+
+  const missingFields = extractedData.length === 0 ? [
+    { field: "CO₂ Emissions Data", description: "Monthly carbon dioxide emissions in kg", category: "Emissions" },
+    { field: "Plastic Waste Data", description: "Monthly plastic waste in pounds", category: "Waste" },
+    { field: "Water Usage Data", description: "Monthly water consumption in gallons", category: "Resources" },
+    { field: "Energy Usage Data", description: "Monthly energy consumption in kWh", category: "Energy" },
+  ] : [];
 
   const handleRunAnalysis = () => {
     toast({
@@ -115,32 +178,89 @@ const Readiness = () => {
           <CardHeader>
             <CardTitle>Extracted Data Summary</CardTitle>
             <CardDescription>
-              Key fields that have been extracted from your documents
+              {extractedData.length > 0
+                ? `${extractedData.length} monthly records extracted from your documents`
+                : "No data extracted yet. Upload documents to begin."}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Field Name</TableHead>
-                  <TableHead>Value</TableHead>
-                  <TableHead>Unit</TableHead>
-                  <TableHead>Source</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {extractedData.map((data, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="font-medium">{data.field}</TableCell>
-                    <TableCell>{data.value}</TableCell>
-                    <TableCell>{data.unit}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {data.source}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="ml-2 text-muted-foreground">Loading extracted data...</span>
+              </div>
+            ) : extractedData.length > 0 ? (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardDescription>Total CO₂</CardDescription>
+                      <CardTitle className="text-2xl">
+                        {annualData.reduce((sum, d) => sum + d.co2_kg, 0).toLocaleString()} kg
+                      </CardTitle>
+                    </CardHeader>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardDescription>Total Plastic</CardDescription>
+                      <CardTitle className="text-2xl">
+                        {annualData.reduce((sum, d) => sum + d.plastic_lbs, 0).toLocaleString()} lbs
+                      </CardTitle>
+                    </CardHeader>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardDescription>Total Water</CardDescription>
+                      <CardTitle className="text-2xl">
+                        {annualData.reduce((sum, d) => sum + d.water_gal, 0).toLocaleString()} gal
+                      </CardTitle>
+                    </CardHeader>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardDescription>Total Energy</CardDescription>
+                      <CardTitle className="text-2xl">
+                        {annualData.reduce((sum, d) => sum + d.energy_kwh, 0).toLocaleString()} kWh
+                      </CardTitle>
+                    </CardHeader>
+                  </Card>
+                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Period</TableHead>
+                      <TableHead className="text-right">CO₂ (kg)</TableHead>
+                      <TableHead className="text-right">Plastic (lbs)</TableHead>
+                      <TableHead className="text-right">Water (gal)</TableHead>
+                      <TableHead className="text-right">Energy (kWh)</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {extractedData.slice(0, 12).map((data, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">
+                          {data.month_label} {data.year}
+                        </TableCell>
+                        <TableCell className="text-right">{data.co2_kg.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{data.plastic_lbs.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{data.water_gal.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{data.energy_kwh.toLocaleString()}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                {extractedData.length > 12 && (
+                  <p className="text-sm text-muted-foreground text-center">
+                    Showing 12 of {extractedData.length} monthly records
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No extracted data available.</p>
+                <p className="text-sm mt-2">Upload sustainability documents to extract environmental metrics.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
