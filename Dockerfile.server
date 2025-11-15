@@ -1,0 +1,24 @@
+# Backend server Dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json ./
+
+# Install dependencies (including dev dependencies for tsx)
+RUN npm ci
+
+# Copy server source code
+COPY server ./server
+COPY .env* ./
+
+# Expose backend port
+EXPOSE 5000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:5000/api/health || exit 1
+
+# Start the server
+CMD ["npm", "run", "server"]

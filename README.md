@@ -1,31 +1,102 @@
 # Sustainify - Make Your Business Sustainable
 
-Sustainify is a web application that helps small businesses reduce their carbon footprint and become more sustainable. Track emissions, save costs, and make environmentally conscious decisions with simple, easy-to-use tools.
+Sustainify is a full-stack web application that helps small businesses reduce their carbon footprint and become more sustainable. Track emissions, save costs, and make environmentally conscious decisions with simple, easy-to-use tools.
 
 ## Features
 
+- User authentication (Sign in/Sign up)
 - Carbon footprint tracking
 - Sustainability insights and recommendations
 - Cost-saving analysis
 - User-friendly interface built with React and shadcn/ui
 - Responsive design for desktop and mobile
+- Secure MongoDB Atlas database integration
 
 ## Tech Stack
 
-- **Frontend Framework**: React 18 with TypeScript
-- **Build Tool**: Vite
-- **UI Components**: shadcn/ui (Radix UI primitives)
-- **Styling**: Tailwind CSS
-- **Routing**: React Router DOM
-- **Forms**: React Hook Form with Zod validation
-- **Charts**: Recharts
+**Frontend:**
+- React 18 with TypeScript
+- Vite
+- shadcn/ui (Radix UI primitives)
+- Tailwind CSS
+- React Router DOM
+- React Hook Form with Zod validation
+- Recharts
+
+**Backend:**
+- Node.js with Express
+- MongoDB Atlas
+- JSON Web Tokens (JWT) for authentication
+- bcryptjs for password hashing
+- TypeScript
 
 ## Prerequisites
 
-Before you begin, ensure you have one of the following installed:
+Before you begin, ensure you have:
 
 - **Docker & Docker Compose** (recommended for quick setup)
 - **Node.js** 20.x or higher and npm (for local development)
+- **MongoDB Atlas account** (free tier available)
+
+## MongoDB Atlas Setup
+
+### Step 1: Create a MongoDB Atlas Account
+
+1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+2. Sign up for a free account or sign in
+3. Click "Build a Database"
+4. Choose the **FREE** tier (M0 Sandbox)
+5. Select your cloud provider and region
+6. Click "Create Cluster"
+
+### Step 2: Create a Database User
+
+1. In your Atlas dashboard, go to **Database Access**
+2. Click "Add New Database User"
+3. Choose **Password** authentication
+4. Create a username and strong password (save these!)
+5. Set user privileges to "Read and write to any database"
+6. Click "Add User"
+
+### Step 3: Configure Network Access
+
+1. Go to **Network Access** in the sidebar
+2. Click "Add IP Address"
+3. For development, click "Allow Access from Anywhere" (0.0.0.0/0)
+   - **Note**: For production, restrict this to specific IPs
+4. Click "Confirm"
+
+### Step 4: Get Your Connection String
+
+1. Go to **Database** in the sidebar
+2. Click "Connect" on your cluster
+3. Choose "Connect your application"
+4. Copy the connection string (it looks like):
+   ```
+   mongodb+srv://username:<password>@cluster.mongodb.net/?retryWrites=true&w=majority
+   ```
+5. Replace `<password>` with your database user's password
+6. Replace `username` with your database username
+7. Optionally add a database name before the `?` like: `/sustainify?retryWrites=true&w=majority`
+
+### Step 5: Configure Environment Variables
+
+1. Copy the `.env.example` file to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Open `.env` and add your MongoDB connection string:
+   ```env
+   MONGODB_URI=mongodb+srv://your-username:your-password@cluster.mongodb.net/sustainify?retryWrites=true&w=majority
+   JWT_SECRET=your-super-secret-random-string-here
+   JWT_EXPIRE=7d
+   PORT=5000
+   CLIENT_URL=http://localhost:9900
+   VITE_API_URL=http://localhost:5000/api
+   ```
+
+3. **Important**: Never commit the `.env` file to version control!
 
 ## Quick Start with Docker
 
@@ -38,13 +109,17 @@ git clone https://github.com/your-username/eco-quest.git
 cd eco-quest
 ```
 
-### 2. Build and run with Docker Compose
+### 2. Set up MongoDB Atlas (see above) and configure `.env` file
+
+### 3. Build and run with Docker Compose
 
 ```bash
 docker-compose up -d
 ```
 
-The application will be available at [http://localhost:9900](http://localhost:9900)
+The application will be available at:
+- **Frontend**: [http://localhost:9900](http://localhost:9900)
+- **Backend API**: [http://localhost:5000](http://localhost:5000)
 
 ### 3. Stop the application
 
@@ -82,19 +157,37 @@ docker-compose up -d --build
 
 If you prefer to run the application locally without Docker:
 
-### 1. Install dependencies
+### 1. Set up MongoDB Atlas and configure `.env` file (see above)
+
+### 2. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 2. Start the development server
+### 3. Run both frontend and backend
 
+To run both frontend and backend simultaneously:
+
+```bash
+npm run dev:all
+```
+
+Or run them separately in different terminals:
+
+**Terminal 1 - Frontend:**
 ```bash
 npm run dev
 ```
 
-The application will be available at [http://localhost:5173](http://localhost:5173)
+**Terminal 2 - Backend:**
+```bash
+npm run server
+```
+
+The application will be available at:
+- **Frontend**: [http://localhost:5173](http://localhost:5173) (development) or [http://localhost:8080](http://localhost:8080)
+- **Backend**: [http://localhost:5000](http://localhost:5000)
 
 ### 3. Build for production
 
@@ -110,7 +203,9 @@ npm run preview
 
 ## Available Scripts
 
-- `npm run dev` - Start development server with hot reload
+- `npm run dev` - Start frontend development server with hot reload
+- `npm run server` - Start backend API server
+- `npm run dev:all` - Run both frontend and backend simultaneously
 - `npm run build` - Build production-ready application
 - `npm run build:dev` - Build in development mode
 - `npm run preview` - Preview production build locally
@@ -120,22 +215,63 @@ npm run preview
 
 ```
 eco-quest/
-├── public/             # Static assets
-├── src/
-│   ├── components/     # React components
-│   │   ├── ui/        # shadcn/ui components
-│   │   └── ...        # Custom components
-│   ├── hooks/         # Custom React hooks
-│   ├── lib/           # Utility functions
-│   ├── pages/         # Page components
-│   ├── App.tsx        # Main app component
-│   ├── main.tsx       # Application entry point
-│   └── index.css      # Global styles
-├── Dockerfile         # Docker configuration
-├── docker-compose.yml # Docker Compose configuration
-├── nginx.conf         # Nginx server configuration
-└── package.json       # Dependencies and scripts
+├── public/                 # Static assets
+├── src/                    # Frontend source code
+│   ├── components/         # React components
+│   │   ├── ui/            # shadcn/ui components
+│   │   └── ...            # Custom components (Navbar, Hero, etc.)
+│   ├── hooks/             # Custom React hooks
+│   ├── lib/               # Utility functions and API client
+│   │   ├── api.ts         # API helper functions
+│   │   └── utils.ts       # Utility functions
+│   ├── pages/             # Page components
+│   │   ├── Index.tsx      # Home page
+│   │   ├── SignIn.tsx     # Sign in page
+│   │   ├── SignUp.tsx     # Sign up page
+│   │   └── NotFound.tsx   # 404 page
+│   ├── App.tsx            # Main app component with routing
+│   ├── main.tsx           # Application entry point
+│   └── index.css          # Global styles
+├── server/                # Backend source code
+│   ├── config/            # Configuration files
+│   │   └── database.ts    # MongoDB connection
+│   ├── controllers/       # Route controllers
+│   │   └── authController.ts  # Authentication logic
+│   ├── middleware/        # Express middleware
+│   │   └── auth.ts        # JWT authentication middleware
+│   ├── models/            # MongoDB models
+│   │   └── User.ts        # User model with password hashing
+│   ├── routes/            # API routes
+│   │   └── auth.ts        # Authentication routes
+│   └── index.ts           # Express server entry point
+├── Dockerfile             # Frontend Docker configuration
+├── Dockerfile.server      # Backend Docker configuration
+├── docker-compose.yml     # Docker Compose for full stack
+├── nginx.conf             # Nginx server configuration
+├── .env.example           # Environment variables template
+└── package.json           # Dependencies and scripts
 ```
+
+## API Endpoints
+
+### Authentication
+
+- `POST /api/auth/register` - Register a new user
+  - Body: `{ email, password, name? }`
+  - Returns: `{ success, token, user }`
+
+- `POST /api/auth/login` - Login user
+  - Body: `{ email, password }`
+  - Returns: `{ success, token, user }`
+
+- `GET /api/auth/me` - Get current user (requires authentication)
+  - Headers: `Authorization: Bearer <token>`
+  - Returns: `{ success, user }`
+
+### Health Check
+
+- `GET /api/health` - Check if the backend server is running
+  - Returns: `{ status: "OK", message: "Server is running" }`
 
 ## Configuration
 

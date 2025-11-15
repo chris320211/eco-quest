@@ -9,9 +9,10 @@ import { Leaf, Loader2 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
-const SignIn = () => {
+const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -21,11 +22,11 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
-      const result = await api.login({ email, password });
+      const result = await api.register({ email, password, name });
 
       toast({
         title: "Success!",
-        description: `Welcome back, ${result.user.name || result.user.email}!`,
+        description: `Welcome to Sustainify, ${result.user.name || result.user.email}!`,
       });
 
       // Redirect to home page
@@ -33,10 +34,10 @@ const SignIn = () => {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Failed to sign in. Please try again.",
+        description: error.message || "Failed to create account. Please try again.",
         variant: "destructive",
       });
-    } finally {
+    } finally{
       setIsLoading(false);
     }
   };
@@ -52,13 +53,23 @@ const SignIn = () => {
 
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
             <CardDescription className="text-center">
-              Sign in to your account to continue
+              Enter your information to get started
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="John Doe"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -71,32 +82,25 @@ const SignIn = () => {
                 />
               </div>
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <Link
-                    to="/forgot-password"
-                    className="text-sm text-primary hover:underline"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
+                <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder="Create a password (min. 6 characters)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  minLength={6}
                 />
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Signing in...
+                    Creating account...
                   </>
                 ) : (
-                  "Sign In"
+                  "Create Account"
                 )}
               </Button>
             </form>
@@ -144,16 +148,16 @@ const SignIn = () => {
           </CardContent>
           <CardFooter>
             <p className="text-sm text-muted-foreground text-center w-full">
-              Don't have an account?{" "}
-              <Link to="/signup" className="text-primary hover:underline font-medium">
-                Sign up
+              Already have an account?{" "}
+              <Link to="/signin" className="text-primary hover:underline font-medium">
+                Sign in
               </Link>
             </p>
           </CardFooter>
         </Card>
 
         <p className="text-center text-xs text-muted-foreground mt-4">
-          By signing in, you agree to our{" "}
+          By creating an account, you agree to our{" "}
           <Link to="/terms" className="hover:underline">
             Terms of Service
           </Link>{" "}
@@ -167,4 +171,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
+export default SignUp;

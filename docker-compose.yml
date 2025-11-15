@@ -1,14 +1,42 @@
 services:
-  eco-quest:
+  # Backend API Server
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: eco-quest-backend
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET:-default-secret-change-in-production}
+      - JWT_EXPIRE=${JWT_EXPIRE:-7d}
+      - CLIENT_URL=http://localhost:9900
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - eco-quest-network
+
+  # Frontend Application
+  frontend:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: eco-quest-app
+    container_name: eco-quest-frontend
     ports:
       - "9900:80"
     restart: unless-stopped
     environment:
       - NODE_ENV=production
+    depends_on:
+      - backend
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
       interval: 30s
