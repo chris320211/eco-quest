@@ -29,8 +29,8 @@ const SignUp = () => {
         description: `Welcome to Sustainify, ${result.user.name || result.user.email}!`,
       });
 
-      // Redirect to home page
-      navigate("/");
+      // Redirect to onboarding
+      navigate("/onboarding");
     } catch (error: any) {
       toast({
         title: "Error",

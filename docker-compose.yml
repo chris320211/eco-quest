@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile.server
     container_name: eco-quest-backend
     ports:
-      - "5000:5000"
+      - "5001:5000"
     restart: unless-stopped
     environment:
       - NODE_ENV=production

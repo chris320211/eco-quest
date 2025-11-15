@@ -98,7 +98,7 @@ docker-compose up -d
 
 # 5. Access the application
 # Frontend: http://localhost:9900
-# Backend API: http://localhost:5000
+# Backend API: http://localhost:5001
 ```
 
 ### Option 2: Local Development
@@ -138,8 +138,10 @@ Once running, you can:
 3. **Sign in** with your credentials
 4. **Test the API directly**:
    ```bash
-   # Check backend health
-   curl http://localhost:5000/api/health
+   # Check backend health (Docker: port 5001, Local: port 5000)
+   curl http://localhost:5001/api/health  # Docker
+   # or
+   curl http://localhost:5000/api/health  # Local development
    ```
 
 ### What You'll Need
@@ -201,7 +203,7 @@ To fully run this application, you need a **MongoDB Atlas connection string**. F
    JWT_EXPIRE=7d
    PORT=5000
    CLIENT_URL=http://localhost:9900
-   VITE_API_URL=http://localhost:5000/api
+   VITE_API_URL=http://localhost:5001/api  # Use 5001 for Docker, 5000 for local development
    ```
 
 3. **Important**: Never commit the `.env` file to version control!
@@ -258,7 +260,7 @@ docker-compose ps
 ### Docker Architecture
 
 The `docker-compose.yml` sets up:
-- **backend** service: Runs on port 5000
+- **backend** service: Accessible on port 5001 (internal port 5000)
 - **frontend** service: Runs on port 9900
 - Shared network for service communication
 - Health checks for both services
@@ -447,7 +449,9 @@ docker-compose up -d --build
 **Port already in use**
 ```bash
 # Check what's using the port
-lsof -i :9900  # or :5000
+lsof -i :9900  # Frontend
+lsof -i :5001  # Backend (Docker)
+lsof -i :5000  # Backend (Local) - Note: macOS may use 5000 for AirPlay
 
 # Kill the process or change ports in docker-compose.yml
 # Edit the ports section:
@@ -474,8 +478,12 @@ npm install
 ```
 
 **Backend not connecting to frontend**
-- Check that `VITE_API_URL` in `.env` points to `http://localhost:5000/api`
-- Verify backend is running: `curl http://localhost:5000/api/health`
+- Check that `VITE_API_URL` in `.env` points to the correct port:
+  - Docker: `http://localhost:5001/api`
+  - Local development: `http://localhost:5000/api`
+- Verify backend is running:
+  - Docker: `curl http://localhost:5001/api/health`
+  - Local: `curl http://localhost:5000/api/health`
 - Check CORS settings in `server/index.ts`
 
 **Frontend build fails**
@@ -498,6 +506,12 @@ npm run build
 - Verify backend is running and accessible
 - Test API directly:
   ```bash
+  # Docker (port 5001)
+  curl -X POST http://localhost:5001/api/auth/register \
+    -H "Content-Type: application/json" \
+    -d '{"email":"test@example.com","password":"password123"}'
+  
+  # Local development (port 5000)
   curl -X POST http://localhost:5000/api/auth/register \
     -H "Content-Type: application/json" \
     -d '{"email":"test@example.com","password":"password123"}'
@@ -511,7 +525,8 @@ npm run build
 docker-compose ps
 
 # Local (check processes)
-lsof -i :5000  # Backend
+lsof -i :5001  # Backend (Docker)
+lsof -i :5000  # Backend (Local) - Note: macOS may use 5000 for AirPlay
 lsof -i :5173  # Frontend (dev server)
 lsof -i :8080  # Frontend (alternate port)
 ```
@@ -548,7 +563,8 @@ npm run dev:all
 2. Make sure all prerequisites are installed correctly
 3. Verify your MongoDB Atlas cluster is running
 4. Try the health check endpoints:
-   - Backend: http://localhost:5000/api/health
+   - Backend (Docker): http://localhost:5001/api/health
+   - Backend (Local): http://localhost:5000/api/health
    - Frontend: http://localhost:9900/health (Docker) or check if page loads
 
 ## For Developers

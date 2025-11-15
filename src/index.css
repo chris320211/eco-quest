@@ -33,9 +33,21 @@ All colors MUST be HSL.
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
     --border: 158 20% 90%;
     --input: 158 20% 90%;
     --ring: 158 64% 42%;
+
+    --chart-1: 158 64% 42%;
+    --chart-2: 142 71% 45%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 280 65% 55%;
+    --chart-5: 15 80% 50%;
 
     --radius: 0.75rem;
 
@@ -86,9 +98,21 @@ All colors MUST be HSL.
     --destructive: 0 62.8% 50.6%;
     --destructive-foreground: 158 20% 95%;
 
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
     --border: 158 25% 20%;
     --input: 158 25% 20%;
     --ring: 158 64% 52%;
+
+    --chart-1: 158 64% 52%;
+    --chart-2: 142 71% 45%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 280 65% 55%;
+    --chart-5: 15 80% 50%;
     
     --gradient-primary: linear-gradient(135deg, hsl(158 64% 52%), hsl(158 64% 62%));
     --gradient-hero: linear-gradient(180deg, hsl(158 35% 8%), hsl(158 30% 12%));
